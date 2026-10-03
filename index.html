@@ -1,0 +1,688 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101827">
+<title>Photobooth by Detswen</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --bg: #101827;
+  --panel: #1a2638;
+  --panel2: #243248;
+  --text: #f5f7fb;
+  --muted: #9caec2;
+  --accent: #39d6bc;
+  --border: #34445a;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+header {
+  padding: 24px 15px 20px;
+  text-align: center;
+  background: linear-gradient(140deg, #182b3b, #101827);
+  border-bottom: 1px solid var(--border);
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: var(--accent);
+}
+
+.logo span {
+  color: white;
+}
+
+header p {
+  margin: 9px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+main {
+  max-width: 760px;
+  padding: 16px;
+  margin: auto;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 8px 24px #0002;
+}
+
+.panel-title {
+  font-size: 16px;
+  font-weight: bold;
+  margin: 0 0 14px;
+}
+
+.camera {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: #080d16;
+  border-radius: 15px;
+  border: 2px solid #34445a;
+}
+
+video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+}
+
+#countdown {
+  display: none;
+  position: absolute;
+  inset: 0;
+  align-items: center;
+  justify-content: center;
+  background: #0005;
+  color: white;
+  font-size: 90px;
+  font-weight: 900;
+  text-shadow: 0 3px 20px #000;
+}
+
+.status {
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+  min-height: 18px;
+  margin: 13px 0;
+}
+
+.buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+button, select {
+  font-family: inherit;
+  font-size: 13px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--panel2);
+  color: var(--text);
+  padding: 12px 10px;
+  cursor: pointer;
+  min-height: 44px;
+}
+
+button:active {
+  transform: scale(.98);
+}
+
+button:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+.primary {
+  background: var(--accent);
+  color: #06231f;
+  border-color: var(--accent);
+  font-weight: bold;
+}
+
+.capture {
+  grid-column: 1 / -1;
+  min-height: 54px;
+  font-size: 16px;
+}
+
+.secondary {
+  background: #2a3850;
+}
+
+.danger {
+  background: #692f40;
+  border-color: #854056;
+}
+
+select {
+  width: 100%;
+  margin-top: 5px;
+  background: #26364b;
+}
+
+.options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 9px;
+}
+
+.option {
+  padding: 12px 5px;
+  min-height: 58px;
+}
+
+.option.active {
+  border: 2px solid var(--accent);
+  background: #17433f;
+  color: #b5fff3;
+}
+
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.photo-card {
+  background: #101827;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  border-radius: 12px;
+  min-width: 0;
+}
+
+.photo-card img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  display: block;
+  object-fit: cover;
+}
+
+.photo-actions {
+  display: flex;
+  gap: 6px;
+  padding: 7px;
+}
+
+.photo-actions button {
+  flex: 1;
+  min-width: 0;
+  padding: 9px 4px;
+  font-size: 11px;
+}
+
+.empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+  padding: 30px 8px;
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+}
+
+.gallery-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.gallery-top .panel-title {
+  margin: 0;
+}
+
+.small {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+footer {
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+  padding: 22px 10px 30px;
+}
+
+@media (min-width: 600px) {
+  .gallery {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">✦ PHOTOBOOTH <span>BY DETSWEN</span></div>
+  <p>Capture Your Beautiful Moments</p>
+</header>
+
+<main>
+
+  <!-- KAMERA -->
+  <section class="panel">
+    <h2 class="panel-title">📸 Studio Kamera</h2>
+
+    <div class="camera">
+      <video id="video" autoplay playsinline muted></video>
+      <div id="countdown">3</div>
+    </div>
+
+    <div class="status" id="status">
+      Aktifkan kamera untuk memulai Photo Booth
+    </div>
+
+    <div class="buttons">
+      <button class="primary" id="startBtn">
+        📷 Aktifkan Kamera
+      </button>
+
+      <button class="secondary" id="switchBtn">
+        🔄 Ganti Kamera
+      </button>
+
+      <button class="primary capture" id="captureBtn" disabled>
+        ✦ AMBIL FOTO
+      </button>
+    </div>
+  </section>
+
+  <!-- TIMER -->
+  <section class="panel">
+    <h2 class="panel-title">⏱️ Timer Kamera</h2>
+    <select id="timer">
+      <option value="0">Tanpa Timer</option>
+      <option value="3">Hitung Mundur 3 Detik</option>
+      <option value="5">Hitung Mundur 5 Detik</option>
+      <option value="10">Hitung Mundur 10 Detik</option>
+    </select>
+  </section>
+
+  <!-- FILTER -->
+  <section class="panel">
+    <h2 class="panel-title">🎨 Filter Foto</h2>
+    <div class="options" id="filters">
+      <button class="option active" data-filter="none">
+        ✨ Natural
+      </button>
+      <button class="option" data-filter="grayscale(1)">
+        ⚫ B&W
+      </button>
+      <button class="option" data-filter="sepia(.75)">
+        📷 Vintage
+      </button>
+      <button class="option" data-filter="brightness(1.2) saturate(1.2)">
+        ☀️ Bright
+      </button>
+      <button class="option" data-filter="contrast(1.2) saturate(1.4)">
+        🌈 Vivid
+      </button>
+      <button class="option" data-filter="sepia(.2) saturate(1.5) hue-rotate(-10deg)">
+        🌅 Warm
+      </button>
+    </div>
+  </section>
+
+  <!-- BINGKAI -->
+  <section class="panel">
+    <h2 class="panel-title">🖼️ Bingkai Foto</h2>
+    <div class="options" id="frames">
+      <button class="option active" data-frame="none">
+        Tanpa Bingkai
+      </button>
+      <button class="option" data-frame="white">
+        🤍 Putih
+      </button>
+      <button class="option" data-frame="pink">
+        🌸 Pink
+      </button>
+      <button class="option" data-frame="gold">
+        ✨ Emas
+      </button>
+      <button class="option" data-frame="blue">
+        💙 Biru
+      </button>
+      <button class="option" data-frame="black">
+        🖤 Hitam
+      </button>
+    </div>
+  </section>
+
+  <!-- GALERI -->
+  <section class="panel">
+    <div class="gallery-top">
+      <h2 class="panel-title">🪄 Galeri Foto</h2>
+      <span class="small" id="photoCount">0 Foto</span>
+    </div>
+
+    <div class="gallery" id="gallery">
+      <div class="empty">
+        📷<br><br>
+        Belum ada foto.<br>
+        Ambil foto pertamamu!
+      </div>
+    </div>
+
+    <button id="clearBtn" class="danger"
+      style="width:100%;margin-top:14px">
+      🗑️ Hapus Semua Foto
+    </button>
+  </section>
+
+</main>
+
+<footer>
+  <strong>PHOTOBOOTH BY DETSWEN</strong><br><br>
+  Made with ♥ for your memories
+</footer>
+
+<script>
+const video = document.getElementById("video");
+const statusText = document.getElementById("status");
+const startBtn = document.getElementById("startBtn");
+const switchBtn = document.getElementById("switchBtn");
+const captureBtn = document.getElementById("captureBtn");
+const countdown = document.getElementById("countdown");
+const timer = document.getElementById("timer");
+const gallery = document.getElementById("gallery");
+const photoCount = document.getElementById("photoCount");
+
+let stream = null;
+let facing = "user";
+let currentFilter = "none";
+let currentFrame = "none";
+let photos = [];
+let busy = false;
+
+// MEMULAI KAMERA
+
+async function startCamera() {
+  stopCamera();
+
+  if (!navigator.mediaDevices ||
+      !navigator.mediaDevices.getUserMedia) {
+    statusText.textContent =
+      "Kamera perlu HTTPS atau localhost. Buka website melalui server lokal.";
+    return;
+  }
+
+  try {
+    statusText.textContent = "Meminta izin kamera...";
+
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: facing,
+        width: { ideal: 1280 },
+        height: { ideal: 960 }
+      },
+      audio: false
+    });
+
+    video.srcObject = stream;
+    video.style.filter = currentFilter;
+
+    await new Promise((resolve, reject) => {
+      video.onloadedmetadata = resolve;
+      video.onerror = reject;
+    });
+
+    await video.play();
+
+    captureBtn.disabled = false;
+    startBtn.textContent = "✓ Kamera Aktif";
+    statusText.textContent = "Kamera siap digunakan!";
+
+  } catch (error) {
+    stopCamera();
+
+    if (error.name === "NotAllowedError") {
+      statusText.textContent =
+        "Izin kamera ditolak. Periksa pengaturan izin browser.";
+    } else if (error.name === "NotFoundError") {
+      statusText.textContent =
+        "Kamera tidak ditemukan pada perangkat.";
+    } else if (error.name === "NotReadableError") {
+      statusText.textContent =
+        "Kamera sedang digunakan aplikasi lain. Tutup aplikasi tersebut.";
+    } else {
+      statusText.textContent =
+        "Kamera gagal: " + error.name + " - " + error.message;
+    }
+  }
+}
+
+
+// MEMATIKAN KAMERA
+function stopCamera() {
+  if (stream) {
+    stream.getTracks().forEach(track => track.stop());
+    stream = null;
+  }
+
+  video.srcObject = null;
+  captureBtn.disabled = true;
+}
+
+// TOMBOL KAMERA
+startBtn.addEventListener("click", startCamera);
+
+switchBtn.addEventListener("click", async () => {
+  facing = facing === "user" ? "environment" : "user";
+
+  if (stream) {
+    await startCamera();
+  } else {
+    statusText.textContent =
+      facing === "user"
+      ? "Kamera depan dipilih. Aktifkan kamera."
+      : "Kamera belakang dipilih. Aktifkan kamera.";
+  }
+});
+
+// FILTER
+document.querySelectorAll("[data-filter]").forEach(button => {
+  button.addEventListener("click", () => {
+    document.querySelectorAll("[data-filter]")
+      .forEach(item => item.classList.remove("active"));
+
+    button.classList.add("active");
+    currentFilter = button.dataset.filter;
+    video.style.filter = currentFilter;
+  });
+});
+
+// BINGKAI
+document.querySelectorAll("[data-frame]").forEach(button => {
+  button.addEventListener("click", () => {
+    document.querySelectorAll("[data-frame]")
+      .forEach(item => item.classList.remove("active"));
+
+    button.classList.add("active");
+    currentFrame = button.dataset.frame;
+  });
+});
+
+// GAMBAR BINGKAI PADA FOTO
+function drawFrame(ctx, width, height) {
+  const colors = {
+    white: "#ffffff",
+    pink: "#f9a8d4",
+    gold: "#e9bd62",
+    blue: "#60a5fa",
+    black: "#101010"
+  };
+
+  if (currentFrame === "none") return;
+
+  const size = Math.max(12, Math.round(width * 0.035));
+
+  ctx.save();
+  ctx.lineWidth = size;
+  ctx.strokeStyle = colors[currentFrame];
+
+  ctx.strokeRect(
+    size / 2,
+    size / 2,
+    width - size,
+    height - size
+  );
+
+  ctx.restore();
+}
+
+// MENGAMBIL FOTO
+function takePicture() {
+  if (!stream || video.videoWidth === 0) {
+    statusText.textContent =
+      "Kamera belum siap. Coba kembali.";
+    return;
+  }
+
+  const canvas = document.createElement("canvas");
+  const width = video.videoWidth;
+  const height = video.videoHeight;
+
+  canvas.width = width;
+  canvas.height = height;
+
+  const ctx = canvas.getContext("2d");
+
+  // Efek cermin untuk kamera depan
+  if (facing === "user") {
+    ctx.translate(width, 0);
+    ctx.scale(-1, 1);
+  }
+
+  ctx.filter = currentFilter;
+  ctx.drawImage(video, 0, 0, width, height);
+  ctx.filter = "none";
+
+  drawFrame(ctx, width, height);
+
+  const photo = canvas.toDataURL("image/jpeg", 0.92);
+
+  photos.unshift(photo);
+  renderGallery();
+
+  statusText.textContent = "✓ Foto berhasil diambil!";
+}
+
+// TIMER
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function capturePhoto() {
+  if (busy || !stream) return;
+
+  busy = true;
+  captureBtn.disabled = true;
+
+  let seconds = Number(timer.value);
+
+  if (seconds > 0) {
+    countdown.style.display = "flex";
+
+    while (seconds > 0) {
+      countdown.textContent = seconds;
+      await sleep(1000);
+      seconds--;
+    }
+
+    countdown.textContent = "📸";
+    await sleep(400);
+    countdown.style.display = "none";
+  }
+
+  takePicture();
+
+  captureBtn.disabled = !stream;
+  busy = false;
+}
+
+captureBtn.addEventListener("click", capturePhoto);
+
+// MENAMPILKAN GALERI
+function renderGallery() {
+  gallery.innerHTML = "";
+  photoCount.textContent = photos.length + " Foto";
+
+  if (photos.length === 0) {
+    gallery.innerHTML = `
+      <div class="empty">
+        📷<br><br>
+        Belum ada foto.<br>
+        Ambil foto pertamamu!
+      </div>`;
+    return;
+  }
+
+  photos.forEach((photo, index) => {
+    const card = document.createElement("div");
+    card.className = "photo-card";
+
+    const img = document.createElement("img");
+    img.src = photo;
+    img.alt = "Foto Detswen " + (index + 1);
+
+    const actions = document.createElement("div");
+    actions.className = "photo-actions";
+
+    const downloadBtn = document.createElement("button");
+    downloadBtn.className = "primary";
+    downloadBtn.textContent = "⬇ Simpan";
+
+    downloadBtn.addEventListener("click", () => {
+      const link = document.createElement("a");
+      link.href = photo;
+      link.download = "Photobooth-Detswen-" +
+        (index + 1) + ".jpg";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    });
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.className = "danger";
+    deleteBtn.textContent = "🗑 Hapus";
+
+    deleteBtn.addEventListener("click", () => {
+      photos.splice(index, 1);
+      renderGallery();
+    });
+
+    actions.append(downloadBtn, deleteBtn);
+    card.append(img, actions);
+    gallery.appendChild(card);
+  });
+}
+
+// HAPUS SEMUA FOTO
+document.getElementById("clearBtn")
+  .addEventListener("click", () => {
+    if (photos.length === 0) return;
+
+    if (confirm("Hapus semua foto?")) {
+      photos = [];
+      renderGallery();
+      statusText.textContent = "Semua foto dihapus.";
+    }
+  });
+
+// MATIKAN KAMERA SAAT HALAMAN DITINGGALKAN
+window.addEventListener("pagehide", stopCamera);
+
+</script>
+</body>
+</html>
